@@ -1,12 +1,17 @@
 package com.example.intento2.coded
 
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.example.intento2.R
@@ -64,6 +69,7 @@ class Juego : AppCompatActivity() {
 
     private lateinit var progress: Progress
     private lateinit var gameSettings: GameSettings
+    private var backPressedOnce = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -435,6 +441,8 @@ class Juego : AppCompatActivity() {
 
     }
 
+
+
     private fun endGame() {
         val totalAnswers = hintSelection.count { it.value != null } + userSelection.count { it.value != null }
         if (totalAnswers == numberOfQuestions) {
@@ -480,7 +488,7 @@ class Juego : AppCompatActivity() {
                 db.highScoresDao().insertHighScores(highScores)
             }
 
-            activeUserId?.let { db.userDao().disablePendingGameStatus(it) }
+            db.userDao().setPendingGameToFalse(activeUserId)
 
         }
 
@@ -635,6 +643,51 @@ class Juego : AppCompatActivity() {
         } while (db.progressDao().getProgressByGameId(randomId) != null)// Check if ID already exists in the table
         return randomId
     }
+
+
+    override fun onBackPressed() {
+        // Check if the activity is finishing
+        if (!isFinishing) {
+            lifecycleScope.launch {
+                // Update progress before exiting
+                updateProgressBeforeExit()
+
+                // Build the confirmation dialog
+                val alertDialogBuilder = AlertDialog.Builder(this@Juego)
+                alertDialogBuilder.setMessage("Are you sure you want to leave?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes") { dialog, _ ->
+                        // Finish the activity if the user confirms
+                        dialog.dismiss()
+                        finish()
+                    }
+                    .setNegativeButton("No") { dialog, _ ->
+                        // Dismiss the dialog if the user cancels
+                        dialog.cancel()
+                    }
+
+                // Create and show the dialog only if the activity is not finishing
+                if (!isFinishing) {
+                    val alertDialog = alertDialogBuilder.create()
+                    alertDialog.show()
+                }
+            }
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+
+
+    private suspend fun updateProgressBeforeExit() {
+        // Update progress here before exiting
+        // For example:
+        withContext(Dispatchers.IO) {
+            // Update progress in the database
+            db.progressDao().updateProgress(progress)
+        }
+    }
+
 
 
 }
