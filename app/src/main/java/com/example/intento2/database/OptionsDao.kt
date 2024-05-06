@@ -14,4 +14,12 @@ interface OptionsDao {
 
     @Insert
     suspend fun insertAnswerOption(options: Options)
+
+    @Insert
+    suspend fun insertOptions(options: Options)
+
+    @Query("SELECT * FROM Options WHERE id = :id LIMIT 1")
+    suspend fun getAnswerOptionById(id: Int): Options?
+
+
 }

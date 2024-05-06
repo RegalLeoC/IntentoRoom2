@@ -14,6 +14,7 @@ data class SavedQuestions(
     val state: String = "Unanswered",
     val difficulty: String = "Normal",
     val uniqueId: Int? = 0,
-    val content: Questions?
+    val content: Questions?,
+    val questionText: String? = null,
     //Topic
 )

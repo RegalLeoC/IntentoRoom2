@@ -27,7 +27,7 @@ abstract class MyAppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
     abstract fun GameSettingsDao(): GameSettingsDao
-    abstract fun questionDao(): SavedQuestionsDao
+    abstract fun SavedQuestionsDao(): SavedQuestionsDao
     abstract fun progressDao(): ProgressDao
     abstract fun highScoresDao(): HighScoresDao
     abstract fun OptionsDao(): OptionsDao

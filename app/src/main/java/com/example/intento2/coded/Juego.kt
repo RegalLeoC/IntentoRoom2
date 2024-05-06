@@ -6,9 +6,12 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import com.example.intento2.R
 import com.example.intento2.database.MyAppDatabase
+import com.example.intento2.dataclass.Options
 import com.example.intento2.dataclass.Progress
+import com.example.intento2.dataclass.SavedQuestions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -63,7 +66,7 @@ class Juego : AppCompatActivity() {
 
         db = MyAppDatabase.getDatabase(applicationContext)
 
-        GlobalScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
             uniqueId = generateUniqueId()
             gameId = generateRandomGameId()
             activeUserId = getActiveUserId()
@@ -83,7 +86,6 @@ class Juego : AppCompatActivity() {
                 uniqueId
             )
 
-            // Insert progress and update pending game status asynchronously
             withContext(Dispatchers.IO) {
                 db.progressDao().insertProgress(progress)
                 db.userDao().setPendingGameToTrue(activeUserId)
@@ -119,14 +121,148 @@ class Juego : AppCompatActivity() {
                 db.progressDao().updateProgress(progress)
             }
 
-            // Layout initialization
+            // Initialize layout after database operations
             buttonContainer = findViewById(R.id.buttonContainer)
             questionTextView = findViewById(R.id.questionTextView)
             topicImageView = findViewById(R.id.topicImageView)
             questionNumberTextView = findViewById(R.id.questionNumberTextView)
             hintTextView = findViewById(R.id.hintTextView)
             hintButton = findViewById(R.id.hintButton)
+
+            // Select random questions and update UI
+            selectRandomQuestions()
+
         }
+    }
+
+
+    private fun updateQuestion() {
+        val currentQuestion = questions[questionIndex]
+        val currentTopic = topics.find { it.questions.contains(currentQuestion) } ?: Topics.MATHEMATICS
+        topicImageView.setImageResource(currentTopic.imageResourceId)
+        questionTextView.text = currentQuestion.text
+
+        val questionNumberText = "${questionIndex + 1}/${numberOfQuestions}"
+        questionNumberTextView.text = questionNumberText
+
+        // Si es la primera vez que se visita la pregunta, se generan opciones para escoger
+        if (questionOptions[questionIndex] == null) {
+            GlobalScope.launch(Dispatchers.IO) {
+                val questionId = db.SavedQuestionsDao().getQuestionIdByQuestionText(currentQuestion.text)
+                val options = questionId?.let { generateQuestionsOptions(currentQuestion, it) }
+
+                // Update UI on the main thread
+                withContext(Dispatchers.Main) {
+                    questionOptions[questionIndex] = options ?: mutableListOf()
+                    //createButtons(options!!)
+                }
+            }
+        } else {
+            //createButtons(questionOptions[questionIndex]!!)
+        }
+
+        for (i in 1..10) {
+            val buttonId = resources.getIdentifier("bar$i", "id", packageName)
+            val button = findViewById<Button>(buttonId)
+            button.tag = i // Set the tag to the question number for each button
+        }
+
+        for (i in 1..10) {
+            val buttonId = resources.getIdentifier("bar$i", "id", packageName)
+            val button = findViewById<Button>(buttonId)
+            //button.setOnClickListener { navigateToQuestion(button.tag as Int) }
+        }
+    }
+
+
+    private suspend fun generateQuestionsOptions(question: Questions, questionId: Int): MutableList<String> {
+        val options = mutableListOf<String>()
+        options.add(question.correctAnswer)
+
+        var numWrongAnswers = 0;
+
+        when (difficult) {
+            "Easy" -> numWrongAnswers = 1
+            "Normal" -> numWrongAnswers = 2
+            "Hard" -> numWrongAnswers = 3
+        }
+
+        val wrongAnswers = question.wrongAnswers.shuffled().take(numWrongAnswers)
+        options.addAll(wrongAnswers)
+        options.shuffle()
+
+        options.forEachIndexed { index, optionText ->
+            val isCorrect = optionText == question.correctAnswer
+            val optionInstance = Options(
+                id = generateRandomOptionsId(),
+                uniqueId = uniqueId,
+                optionText = optionText,
+                correct = isCorrect,
+                questionId = questionId
+            )
+
+            db.OptionsDao().insertOptions(optionInstance)
+        }
+
+        return options
+    }
+
+    private fun generateRandomOptionsId(): Int? {
+        var newId: Int? = null
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            do {
+                val randomId = (0 until 999).random()
+                val existingOption = db.OptionsDao().getAnswerOptionById(randomId)
+                if (existingOption == null) {
+                    newId = randomId
+                }
+            } while (newId == null)
+        }
+
+        return newId
+    }
+
+
+    private fun selectRandomQuestions() {
+
+        GlobalScope.launch(Dispatchers.IO) {
+
+            val gameSettings = db.GameSettingsDao().getGameSettingsByUserId(activeUserId)
+
+            val allQuestions = topics.flatMap { it.questions }.toMutableList()
+            questions = mutableListOf()
+
+            repeat(numberOfQuestions) {
+                val randomQuestion = allQuestions.random()
+                val randomId = (0..1000).random()
+
+
+                val difficultylevel = gameSettings.difficulty
+                val questionInstance = SavedQuestions(
+                    id = randomId,
+                    gameId,
+                    state = "Unaswered",
+                    difficulty = difficultylevel,
+                    uniqueId = uniqueId,
+                    content = randomQuestion,
+                    questionText = randomQuestion.text
+                )
+
+                db.SavedQuestionsDao().insertQuestion(questionInstance)
+
+                (questions as MutableList<Questions>).add(randomQuestion)
+                allQuestions.remove(randomQuestion)
+
+            }
+
+            withContext(Dispatchers.Main) {
+                updateQuestion()
+            }
+
+
+        }
+
     }
 
 
