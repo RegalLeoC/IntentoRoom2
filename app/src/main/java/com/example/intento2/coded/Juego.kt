@@ -140,10 +140,46 @@ class Juego : AppCompatActivity() {
             hintTextView = findViewById(R.id.hintTextView)
             hintButton = findViewById(R.id.hintButton)
 
+
+            setUpClickListeners()
+
             // Select random questions and update UI
             selectRandomQuestions()
 
         }
+
+
+
+    }
+
+    private fun setUpClickListeners() {
+        //Exploration
+        findViewById<Button>(R.id.nextButton).setOnClickListener {
+            nextQuestion()
+        }
+
+        findViewById<Button>(R.id.prevButton).setOnClickListener {
+            previousQuestion()
+        }
+
+        //Use hint
+        if(gameSettings.clues){
+            hintButton.setOnClickListener {
+                //useHint()
+            }
+        }
+    }
+
+    private fun nextQuestion() {
+        questionIndex = (questionIndex + 1) % numberOfQuestions
+        updateQuestion()
+        //updateNavigationBar()
+    }
+
+    private fun previousQuestion() {
+        questionIndex = (questionIndex - 1 + questions.size) % numberOfQuestions
+        updateQuestion()
+        //updateNavigationBar()
     }
 
 
