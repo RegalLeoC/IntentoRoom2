@@ -16,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.NullPointerException
 
 class Juego : AppCompatActivity() {
 
@@ -59,6 +58,8 @@ class Juego : AppCompatActivity() {
     private var difficult: String? = null;
     private var cluesActive: Boolean? = null;
 
+    private lateinit var progress: Progress
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +78,7 @@ class Juego : AppCompatActivity() {
             difficult = gameSettings.difficulty
             numberOfQuestions = gameSettings.numQuestions
 
-            val progress = Progress(
+            progress = Progress(
                 gameId,
                 settingsId,
                 activeUserId,
@@ -154,11 +155,21 @@ class Juego : AppCompatActivity() {
                 // Update UI on the main thread
                 withContext(Dispatchers.Main) {
                     questionOptions[questionIndex] = options ?: mutableListOf()
-                    //createButtons(options!!)
+                    createButtons(options!!)
                 }
+
+                withContext(Dispatchers.IO) {
+                    progress.questionOptions[questionIndex] = options ?: mutableListOf()
+                    db.progressDao().updateProgress(progress)
+
+                }
+
             }
+
+
+
         } else {
-            //createButtons(questionOptions[questionIndex]!!)
+            createButtons(questionOptions[questionIndex]!!)
         }
 
         for (i in 1..10) {
@@ -172,6 +183,23 @@ class Juego : AppCompatActivity() {
             val button = findViewById<Button>(buttonId)
             //button.setOnClickListener { navigateToQuestion(button.tag as Int) }
         }
+    }
+
+    private fun createButtons(options: List<String>) {
+        buttonContainer.removeAllViews()
+
+        val isAnswered = answeredQuestions[questionIndex]?: false
+        val isAnsweredHint = answeredQuestionsHint[questionIndex]?: false
+
+        progress.answeredQuestions[questionIndex]?: false
+        progress.answeredQuestionsHint[questionIndex]?: false
+
+
+
+
+
+
+
     }
 
 
