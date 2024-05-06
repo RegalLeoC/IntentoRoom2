@@ -13,4 +13,7 @@ interface SavedQuestionsDao {
     @Query("SELECT id FROM Question WHERE questionText = :questionText")
     suspend fun getQuestionIdByQuestionText(questionText: String): Int?
 
+    @Query("SELECT * FROM Question WHERE id = :questionId")
+    fun getQuestionById(questionId: Int): SavedQuestions?
+
 }

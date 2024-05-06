@@ -1,14 +1,18 @@
 package com.example.intento2.coded
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.example.intento2.R
 import com.example.intento2.database.MyAppDatabase
+import com.example.intento2.dataclass.GameSettings
+import com.example.intento2.dataclass.HighScores
 import com.example.intento2.dataclass.Options
 import com.example.intento2.dataclass.Progress
 import com.example.intento2.dataclass.SavedQuestions
@@ -59,6 +63,7 @@ class Juego : AppCompatActivity() {
     private var cluesActive: Boolean? = null;
 
     private lateinit var progress: Progress
+    private lateinit var gameSettings: GameSettings
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,12 +76,17 @@ class Juego : AppCompatActivity() {
             uniqueId = generateUniqueId()
             gameId = generateRandomGameId()
             activeUserId = getActiveUserId()
-            val gameSettings = db.GameSettingsDao().getGameSettingsByUserId(activeUserId)
+            gameSettings = db.GameSettingsDao().getGameSettingsByUserId(activeUserId)
 
             settingsId = gameSettings.id
             cluesActive = gameSettings.clues
             difficult = gameSettings.difficulty
             numberOfQuestions = gameSettings.numQuestions
+
+            if(gameSettings.clues == false){
+                hintButton.isVisible = false
+                hintButton.isEnabled = false
+            }
 
             progress = Progress(
                 gameId,
@@ -188,18 +198,283 @@ class Juego : AppCompatActivity() {
     private fun createButtons(options: List<String>) {
         buttonContainer.removeAllViews()
 
-        val isAnswered = answeredQuestions[questionIndex]?: false
-        val isAnsweredHint = answeredQuestionsHint[questionIndex]?: false
-
-        progress.answeredQuestions[questionIndex]?: false
-        progress.answeredQuestionsHint[questionIndex]?: false
+        val isAnswered = answeredQuestions[questionIndex] ?: false
+        val isAnsweredHint = answeredQuestionsHint[questionIndex] ?: false
 
 
+        for (option in options) {
+            val button = Button(this)
+            button.text = option
+
+            //Aqui poner la de navagacion de regreso para el hint (similar a lo dde arriba)
+            val hintedButton = disabledWrongOptions[questionIndex]?.contains(option) ?: false
+
+            val isSelected = userSelection[questionIndex] == option;
+
+            //Checa si esta contestado
+            // Si contestaste bien pues se pone verde, pero si contestaste mal, se pinta el rojo y se pone el verde mostrandote cual era el correcto
+            if (isAnswered) {
+                hintButton.isEnabled = false
+                button.isEnabled = false
+                val correctAnswer = questions[questionIndex].correctAnswer
+                if (option == correctAnswer) {
+                    button.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+
+                } else if (isSelected) {
+                    button.setBackgroundColor(resources.getColor(android.R.color.holo_red_light))
+
+                }
+
+                if (hintedButton) {
+                    button.setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
+                }
+
+            }
+
+            //Permite usar hint y navegar
+
+            //Aqui poner lo de settins
+
+
+            if(gameSettings.clues) {
+                if (!isAnswered) {
+                    hintButton.isEnabled = true
+                    if (hintedButton) {
+                        button.setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
+                        button.isEnabled = false
+                    }
+                }
+
+
+                // Navegacion si se contesto usando hints
+                if (isAnsweredHint) {
+                    hintButton.isEnabled = false
+
+                    button.isEnabled = false
+                    val correctAnswer = questions[questionIndex].correctAnswer
+
+                    if (option == correctAnswer) {
+                        button.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+                    }
+
+                    if (hintedButton) {
+                        button.setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
+                    }
+
+                    disableButtons()
+
+                }
+
+            }
+
+
+            // Aqui es cuanddo no haz contestado y se guarda en la lista de contestado manual
 
 
 
 
+            button.setOnClickListener {
+                if (!isAnswered) {
+                    hintButton.isEnabled = false
+                    val correctAnswer = questions[questionIndex].correctAnswer
+                    if (option == correctAnswer) {
+                        button.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+                        correctAnswers++ // Increment totalCorrectAnswers when the correct answer is selected
+                        //Sumar
+                        progress.correctAnswers = progress.correctAnswers?.plus(1)
 
+                        // Use a coroutine to update the question state to "Correct"
+                        //lifecycleScope.launch(Dispatchers.IO) {
+                            val questionText = questions[questionIndex].text
+
+
+                           /* activeUserId?.let { userId ->
+                                lifecycleScope.launch(Dispatchers.IO) {
+                                    db.progressDao()
+                                        .updateCorrectAnswers(userId, correctAnswers ?: 0)
+                                }
+                            }
+
+                            uniqueId?.let { it1 ->
+                                db.questionDao().updateQuestionState(
+                                    questionText, "Correct",
+                                    it1
+                                )
+
+                                uniqueId?.let { it1 ->
+                                    db.answerOptionDao().updateAnswerOptionState(
+                                        option, "Selected",
+                                        it1
+                                    )
+                                }
+
+
+                            } */
+                        //}
+
+                        // Add one more hint if in hint streak
+                        if (hintStreak == 1) {
+                            hintsAvailable++
+                            hintTextView.text = hintsAvailable.toString()
+                            hintStreak = 0
+                        } else {
+                            hintStreak++
+                        }
+
+
+                        /*lifecycleScope.launch(Dispatchers.IO) {
+                            uniqueId?.let { it1 ->
+                                db.answerOptionDao().updateAnswerOptionState(
+                                    option, "Selected",
+                                    it1
+                                )
+
+                            }
+                        } */
+
+
+                    } else {
+                        button.setBackgroundColor(resources.getColor(android.R.color.holo_red_light))
+                        hintStreak = 0
+
+                        // Use a coroutine to update the question state to "Incorrect"
+                        /*lifecycleScope.launch(Dispatchers.IO) {
+                            val questionText = questions[questionIndex].text
+                            uniqueId?.let { it1 ->
+                                db.questionDao().updateQuestionState(
+                                    questionText, "Incorrect",
+                                    it1
+                                )
+
+                                uniqueId?.let { it1 ->
+                                    db.answerOptionDao().updateAnswerOptionState(
+                                        option, "Selected",
+                                        it1
+                                    )
+                                }
+
+
+                            }
+                        }*/
+
+                        // Show the correct answer by finding and coloring the button with the correct answer
+                        for (i in 0 until buttonContainer.childCount) {
+                            val child = buttonContainer.getChildAt(i)
+                            if (child is Button && child.text.toString() == correctAnswer) {
+                                child.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+                            }
+                        }
+
+                        /*lifecycleScope.launch(Dispatchers.IO) {
+                            uniqueId?.let { it1 ->
+                                db.answerOptionDao().updateAnswerOptionState(
+                                    option, "Selected",
+                                    it1
+                                )
+                            }
+                        } */
+
+
+                    }
+
+                    answeredQuestions[questionIndex] = true
+                    progress.answeredQuestions[questionIndex] = true
+
+                    userSelection[questionIndex] = option
+                    progress.userSelection[questionIndex] = option
+
+                    disableButtons() // Disable buttons after answering
+
+                    // Check if we need to end the game
+                    endGame()
+                }
+            }
+
+            buttonContainer.addView(button)
+
+        }
+
+
+
+
+    }
+
+    private fun endGame() {
+        val totalAnswers = hintSelection.count { it.value != null } + userSelection.count { it.value != null }
+        if (totalAnswers == numberOfQuestions) {
+            viewResults()
+        }
+    }
+
+    private fun viewResults() {
+        // Calculate the final result based on the specified formula
+        difficultyMultiplier = when (difficult) {
+            "Easy" -> 1.0
+            "Normal" -> 1.25
+            "Hard" -> 1.5
+            else -> 1.0
+        }
+
+        // Deduct points for hints
+        val deduction = hintsUsed * 25  // Deduct 25 points for each hint used
+        val totalpoints = correctAnswers * 100
+        val finalResult = ((totalpoints - deduction) * difficultyMultiplier)
+
+        // Fetch active user name asynchronously
+        lifecycleScope.launch(Dispatchers.IO) {
+            val activeUserName = activeUserId?.let { db.userDao().getUserNameById(it) }
+
+            // Generate a random ID for HighScores
+            val highScoresId = generateRandomHighScoresId()
+
+            // Wait for the highScoresId to be generated
+            val id = highScoresId ?: return@launch
+
+            // Create HighScores instance when active user name is available
+            activeUserName?.let { userName ->
+                val highScores = HighScores(
+                    id = id,
+                    userId = activeUserId ?: 0, // Assuming activeUserId is not null
+                    name = userName,
+                    score = finalResult,
+                    clues = cluesActive ?: false
+                )
+
+                // Save the HighScores instance in the database
+                db.highScoresDao().insertHighScores(highScores)
+            }
+
+            activeUserId?.let { db.userDao().disablePendingGameStatus(it) }
+
+        }
+
+        // Pass the results to the FinPartida activity
+        val intent = Intent(this, FinPartida::class.java)
+        intent.putExtra("Deduction", deduction)
+        intent.putExtra("totalScore", totalpoints)
+        intent.putExtra("FinalResult", finalResult)
+        intent.putExtra("difficultyMultiplier", difficultyMultiplier)
+
+        startActivity(intent)
+        finish()
+    }
+
+    private fun generateRandomHighScoresId(): Int? {
+        var newId: Int
+        do {
+            newId = (0 until 1000).random()
+        } while (db.highScoresDao().getHighScoresById(newId) != null)
+
+        return newId
+    }
+
+    private fun disableButtons() {
+        for (i in 0 until buttonContainer.childCount) {
+            val child = buttonContainer.getChildAt(i)
+            if (child is Button) {
+                child.isEnabled = false
+            }
+        }
     }
 
 
@@ -263,7 +538,7 @@ class Juego : AppCompatActivity() {
 
             repeat(numberOfQuestions) {
                 val randomQuestion = allQuestions.random()
-                val randomId = (0..1000).random()
+                val randomId = generateRandomQuestionId()
 
 
                 val difficultylevel = gameSettings.difficulty
@@ -291,6 +566,14 @@ class Juego : AppCompatActivity() {
 
         }
 
+    }
+
+    private fun generateRandomQuestionId(): Int {
+        var newId: Int
+        do {
+            newId = (0 until 1000).random()
+        } while (db.SavedQuestionsDao().getQuestionById(newId) != null)
+        return newId
     }
 
 
