@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
         builder.setTitle("Resume Last Game?")
             .setMessage("Do you want to resume the last game?")
             .setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int ->
-                //navigateToJuegoReanudadoActivity()
+                navigateToJuegoReanudadoActivity()
                 dialogInterface.dismiss()
             }
             .setNegativeButton("No") { dialogInterface: DialogInterface, _: Int ->
@@ -83,6 +83,11 @@ class MainActivity : AppCompatActivity() {
             }
             .setCancelable(false)
             .show()
+    }
+
+    private fun navigateToJuegoReanudadoActivity() {
+        val intent = Intent(this, JuegoReanudado::class.java)
+        startActivity(intent)
     }
 
     private fun navigateToJuegoActivity() {

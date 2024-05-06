@@ -534,7 +534,12 @@ class Juego : AppCompatActivity() {
             "Hard" -> numWrongAnswers = 3
         }
 
+
+
         val wrongAnswers = question.wrongAnswers.shuffled().take(numWrongAnswers)
+        enabledWrongOptions[questionIndex] = wrongAnswers.toMutableList()
+        progress.enabledWrongOptions[questionIndex] = wrongAnswers.toMutableList()
+
         options.addAll(wrongAnswers)
         options.shuffle()
 

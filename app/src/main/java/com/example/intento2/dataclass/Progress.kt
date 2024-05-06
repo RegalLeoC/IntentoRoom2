@@ -22,6 +22,7 @@ data class Progress(
     var answeredQuestions: MutableMap<Int, Boolean> = mutableMapOf(),
     var answeredQuestionsHint:  MutableMap<Int, Boolean> = mutableMapOf(),
     var userSelection: MutableMap<Int, String?> = mutableMapOf(),
-    var hintSelection: MutableMap<Int, String?> = mutableMapOf()
+    var hintSelection: MutableMap<Int, String?> = mutableMapOf(),
+    var questionIndex: Int? = 0,
 
 )

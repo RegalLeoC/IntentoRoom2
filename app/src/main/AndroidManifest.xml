@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Intento2"
         tools:targetApi="31">
         <activity
+            android:name=".coded.JuegoReanudado"
+            android:exported="false" />
+        <activity
             android:name=".coded.FinPartida"
             android:exported="false" />
         <activity

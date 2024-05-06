@@ -17,4 +17,7 @@ interface ProgressDao {
     @Update
     suspend fun updateProgress(progress: Progress)
 
+    @Query("SELECT * FROM Progress WHERE userId = :userId")
+    suspend fun getProgressByUserId(userId: Int): Progress?
+
 }
