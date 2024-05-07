@@ -16,5 +16,6 @@ data class SavedQuestions(
     val uniqueId: Int? = 0,
     val content: Questions?,
     val questionText: String? = null,
+    val indexNum: Int? = 0
     //Topic
 )

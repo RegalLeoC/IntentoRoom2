@@ -577,7 +577,7 @@ class Juego : AppCompatActivity() {
         return newId
     }
 
-
+    var indexNum: Int = 0
     private fun selectRandomQuestions() {
 
         GlobalScope.launch(Dispatchers.IO) {
@@ -600,10 +600,13 @@ class Juego : AppCompatActivity() {
                     difficulty = difficultylevel,
                     uniqueId = uniqueId,
                     content = randomQuestion,
-                    questionText = randomQuestion.text
+                    questionText = randomQuestion.text,
+                    indexNum
                 )
 
                 db.SavedQuestionsDao().insertQuestion(questionInstance)
+
+                indexNum++
 
                 (questions as MutableList<Questions>).add(randomQuestion)
                 allQuestions.remove(randomQuestion)
