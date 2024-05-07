@@ -76,6 +76,14 @@ class Juego : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_juego)
 
+        // Initialize layout after database operations
+        buttonContainer = findViewById(R.id.buttonContainer)
+        questionTextView = findViewById(R.id.questionTextView)
+        topicImageView = findViewById(R.id.topicImageView)
+        questionNumberTextView = findViewById(R.id.questionNumberTextView)
+        hintTextView = findViewById(R.id.hintTextView)
+        hintButton = findViewById(R.id.hintButton)
+
         db = MyAppDatabase.getDatabase(applicationContext)
 
         lifecycleScope.launch(Dispatchers.Main) {
@@ -138,13 +146,7 @@ class Juego : AppCompatActivity() {
                 db.progressDao().updateProgress(progress)
             }
 
-            // Initialize layout after database operations
-            buttonContainer = findViewById(R.id.buttonContainer)
-            questionTextView = findViewById(R.id.questionTextView)
-            topicImageView = findViewById(R.id.topicImageView)
-            questionNumberTextView = findViewById(R.id.questionNumberTextView)
-            hintTextView = findViewById(R.id.hintTextView)
-            hintButton = findViewById(R.id.hintButton)
+
 
 
             setUpClickListeners()
@@ -153,8 +155,6 @@ class Juego : AppCompatActivity() {
             selectRandomQuestions()
 
         }
-
-
 
     }
 

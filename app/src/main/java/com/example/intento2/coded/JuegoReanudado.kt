@@ -69,6 +69,14 @@ class JuegoReanudado : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_juego_reanudado)
 
+        hintButton = findViewById(R.id.hintButton)
+        buttonContainer = findViewById(R.id.buttonContainer)
+        questionTextView = findViewById(R.id.questionTextView)
+        topicImageView = findViewById(R.id.topicImageView)
+        questionNumberTextView = findViewById(R.id.questionNumberTextView)
+        hintTextView = findViewById(R.id.hintTextView)
+
+
         db = MyAppDatabase.getDatabase(applicationContext)
         lifecycleScope.launch(Dispatchers.Main) {
             activeUserId = getActiveUserId()
@@ -111,13 +119,7 @@ class JuegoReanudado : AppCompatActivity() {
                 db.progressDao().updateProgress(progress)
             }
 
-            // Initialize layout after database operations
-            buttonContainer = findViewById(R.id.buttonContainer)
-            questionTextView = findViewById(R.id.questionTextView)
-            topicImageView = findViewById(R.id.topicImageView)
-            questionNumberTextView = findViewById(R.id.questionNumberTextView)
-            hintTextView = findViewById(R.id.hintTextView)
-            hintButton = findViewById(R.id.hintButton)
+
 
 
             setUpClickListeners()
@@ -557,11 +559,13 @@ class JuegoReanudado : AppCompatActivity() {
 
     private fun previousQuestion() {
         questionIndex = (questionIndex - 1 + questions.size) % numberOfQuestions
+        progress.questionIndex = questionIndex
         updateQuestion()
     }
 
     private fun nextQuestion() {
         questionIndex = (questionIndex + 1) % numberOfQuestions
+        progress.questionIndex = questionIndex
         updateQuestion()
     }
 

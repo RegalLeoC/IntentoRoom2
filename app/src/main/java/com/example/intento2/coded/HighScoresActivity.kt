@@ -1,19 +1,18 @@
 package com.example.intento2.coded
 
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.intento2.R
 import com.example.intento2.database.MyAppDatabase
 import com.example.intento2.recyclerview.HighScoresAdapter
-//import com.example.roomtest.database.MyAppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class FinPartida : AppCompatActivity() {
+class HighScoresActivity : AppCompatActivity() {
 
     private lateinit var highScoresRecyclerView: RecyclerView
     private lateinit var highScoresAdapter: HighScoresAdapter
@@ -22,7 +21,7 @@ class FinPartida : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_fin_partida)
+        setContentView(R.layout.activity_high_scores)
 
         // Initialize RecyclerView
         highScoresRecyclerView = findViewById(R.id.highScoresRecyclerView)
@@ -45,7 +44,7 @@ class FinPartida : AppCompatActivity() {
 
     private fun loadHighScores() {
         GlobalScope.launch(Dispatchers.IO) {
-            val highScoresList = db.highScoresDao().getTop5HighScores() // Get top 20 high scores from the database
+            val highScoresList = db.highScoresDao().getTop20HighScores() // Get top 20 high scores from the database
             runOnUiThread {
                 highScoresAdapter.setData(highScoresList) // Update RecyclerView with high scores data
             }

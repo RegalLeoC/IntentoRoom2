@@ -34,6 +34,11 @@ interface UserDao {
     @Query("DELETE FROM Progress WHERE userId = :userId")
     suspend fun deleteProgressByUserId(userId: Int)
 
+    @Query("UPDATE User SET active = CASE WHEN id = :userId THEN 1 ELSE 0 END")
+    suspend fun setActiveUser(userId: Int)
+
+    @Query("UPDATE User SET active = 0 WHERE id != :userId")
+    suspend fun deactivateAllUsersExcept(userId: Int)
     @Query("DELETE FROM Question WHERE uniqueId IN (SELECT uniqueId FROM Game_settings WHERE userId = :userId)")
     suspend fun deleteQuestionsByUserId(userId: Int)
 

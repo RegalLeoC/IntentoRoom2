@@ -1,0 +1,133 @@
+<!-- activity_game_settings.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textViewTopics"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Topics:"
+        android:textSize="18sp"
+        android:padding="8dp"/>
+
+    <CheckBox
+        android:id="@+id/checkBoxTheme1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewTopics"
+        android:text="Theme 1"
+        android:layout_marginTop="20dp"/>
+
+    <CheckBox
+        android:id="@+id/checkBoxTheme2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/checkBoxTheme1"
+        android:text="Theme 2"
+        android:layout_marginTop="20dp"/>
+
+
+    <CheckBox
+        android:id="@+id/checkBoxTheme3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/checkBoxTheme2"
+        android:text="Theme 3"
+        android:layout_marginTop="20dp"/>
+
+    <CheckBox
+        android:id="@+id/checkBoxTheme4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/checkBoxTheme3"
+        android:text="Theme 4"
+        android:layout_marginTop="20dp"/>
+
+    <CheckBox
+        android:id="@+id/checkBoxTheme5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/checkBoxTheme4"
+        android:text="Theme 5"
+        android:layout_marginTop="20dp"/>
+
+    <CheckBox
+        android:id="@+id/checkBoxTheme6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/checkBoxTheme5"
+        android:text="Theme 6"
+        android:layout_marginTop="20dp"/>
+
+
+    <TextView
+        android:id="@+id/textViewQuestions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Number of Questions:"
+        android:layout_below="@id/checkBoxTheme6"
+        android:textSize="18sp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:padding="8dp"/>
+
+    <!-- Add more CheckBoxes for other themes -->
+
+    <SeekBar
+        android:id="@+id/seekBarQuestions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/checkBoxTheme6"
+        android:max="10"
+        android:min="1"
+        android:progress="5"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:id="@+id/textViewDifficulty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Difficulty:"
+        android:layout_below="@id/seekBarQuestions"
+        android:textSize="18sp"
+        android:padding="8dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerDifficulty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewDifficulty"
+        android:layout_marginTop="20dp"
+        />
+
+    <TextView
+        android:id="@+id/textViewClues"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clues:"
+        android:layout_below="@id/spinnerDifficulty"
+        android:textSize="18sp"
+        android:padding="8dp"/>
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switchHints"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewClues"
+        android:layout_marginTop="20dp"
+        android:text="Enable Hints"/>
+
+    <Button
+        android:id="@+id/buttonBackToMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back to Menu"
+        android:layout_below="@id/switchHints"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
+
+
+</RelativeLayout>

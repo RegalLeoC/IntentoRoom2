@@ -18,6 +18,10 @@ interface GameSettingsDao {
     @Query("SELECT * FROM Game_settings WHERE userId = :userId")
     suspend fun getGameSettingsByUserId(userId: Int): GameSettings
 
+    @Update
+    suspend fun updateGameSettings(gameSettings: GameSettings)
 
+    @Query("SELECT * FROM Game_settings WHERE id = :settingsId LIMIT 1")
+    suspend fun getGameSettingsById(settingsId: Int): GameSettings?
 
 }

@@ -46,7 +46,23 @@ class MainActivity : AppCompatActivity() {
 
 
         // Botones
+        val usuariosbutton = findViewById<Button>(R.id.buttonChangeUser)
+        usuariosbutton.setOnClickListener {
+            val intent = Intent(this, UserSelectionActivity::class.java)
+            startActivityForResult(intent, USER_SELECTION_REQUEST_CODE)
+        }
 
+        val recordbutton = findViewById<Button>(R.id.buttonHighScore)
+        recordbutton.setOnClickListener {
+            val intent = Intent(this, HighScoresActivity::class.java)
+            startActivity(intent)
+        }
+
+        val settingsButton = findViewById<Button>(R.id.buttonSettings)
+        settingsButton.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
 
         val buttonPlay = findViewById<Button>(R.id.buttonPlay)
         buttonPlay.setOnClickListener {
