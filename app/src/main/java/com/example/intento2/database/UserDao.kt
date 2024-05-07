@@ -28,6 +28,18 @@ interface UserDao {
     @Query("UPDATE User SET pendingGame = 1 WHERE id = :userId")
     suspend fun setPendingGameToTrue(userId: Int)
 
+    @Query("SELECT * FROM User WHERE active = 1 LIMIT 1")
+    suspend fun getActiveUser(): User?
+
+    @Query("DELETE FROM Progress WHERE userId = :userId")
+    suspend fun deleteProgressByUserId(userId: Int)
+
+    @Query("DELETE FROM Question WHERE uniqueId IN (SELECT uniqueId FROM Game_settings WHERE userId = :userId)")
+    suspend fun deleteQuestionsByUserId(userId: Int)
+
+    @Query("DELETE FROM Options WHERE uniqueId IN (SELECT uniqueId FROM Question WHERE uniqueId IN (SELECT id FROM Game_settings WHERE userId = :userId))")
+    suspend fun deleteAnswerOptionsByUserId(userId: Int)
+
     @Query("SELECT name FROM User WHERE id = :userId")
     suspend fun getUserNameById(userId: Int): String?
 

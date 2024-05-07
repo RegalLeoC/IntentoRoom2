@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.example.intento2.R
@@ -101,7 +102,8 @@ class JuegoReanudado : AppCompatActivity() {
                 answeredQuestionsHint[i] = progress.answeredQuestionsHint[i] ?: false
                 userSelection[i] = progress.userSelection[i]
                 hintSelection[i] = progress.hintSelection[i]
-                questionOptions[i] = progress.questionOptions[i] as? List<String> ?: listOf()
+                //questionOptions[i] = progress.questionOptions[i] as? List<String> ?: listOf()
+                questionOptions[i] = progress.questionOptions[i]
 
             }
 
@@ -567,4 +569,48 @@ class JuegoReanudado : AppCompatActivity() {
         var userId = db.userDao().getActiveUserId()
         return userId;
     }
+
+    override fun onBackPressed() {
+        // Check if the activity is finishing
+        if (!isFinishing) {
+            lifecycleScope.launch {
+                // Update progress before exiting
+                updateProgressBeforeExit()
+
+                // Build the confirmation dialog
+                val alertDialogBuilder = AlertDialog.Builder(this@JuegoReanudado)
+                alertDialogBuilder.setMessage("Are you sure you want to leave?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes") { dialog, _ ->
+                        // Finish the activity if the user confirms
+                        dialog.dismiss()
+                        finish()
+                    }
+                    .setNegativeButton("No") { dialog, _ ->
+                        // Dismiss the dialog if the user cancels
+                        dialog.cancel()
+                    }
+
+                // Create and show the dialog only if the activity is not finishing
+                if (!isFinishing) {
+                    val alertDialog = alertDialogBuilder.create()
+                    alertDialog.show()
+                }
+            }
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+
+
+    private suspend fun updateProgressBeforeExit() {
+        // Update progress here before exiting
+        // For example:
+        withContext(Dispatchers.IO) {
+            // Update progress in the database
+            db.progressDao().updateProgress(progress)
+        }
+    }
+
 }

@@ -14,6 +14,7 @@ import com.example.intento2.database.MyAppDatabase
 import com.example.intento2.dataclass.GameSettings
 import com.example.intento2.dataclass.User
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -63,9 +64,25 @@ class MainActivity : AppCompatActivity() {
             if (user.pendingGame == true) {
                 showResumeGamePrompt(user)
             } else {
-                //resetPendingGameStatus()
+                resetPendingGameStatus()
                 navigateToJuegoActivity()
             }
+        }
+    }
+
+    private fun resetPendingGameStatus() {
+        GlobalScope.launch(Dispatchers.IO) {
+            val activeUser = db.userDao().getActiveUser() ?: return@launch
+
+            // Update pending game status to false
+            activeUser.id?.let { db.userDao().disablePendingGameStatus(it) }
+
+            // Delete all progress, questions, and answer options associated with the game
+            // This depends on how your DAO methods are defined
+
+            db.userDao().deleteAnswerOptionsByUserId(activeUser.id!!)
+            db.userDao().deleteQuestionsByUserId(activeUser.id!!)
+            db.userDao().deleteProgressByUserId(activeUser.id!!)
         }
     }
 
@@ -79,7 +96,7 @@ class MainActivity : AppCompatActivity() {
                 dialogInterface.dismiss()
             }
             .setNegativeButton("No") { dialogInterface: DialogInterface, _: Int ->
-                //resetPendingGameStatus()
+                resetPendingGameStatus()
                 navigateToJuegoActivity()
                 dialogInterface.dismiss()
             }
