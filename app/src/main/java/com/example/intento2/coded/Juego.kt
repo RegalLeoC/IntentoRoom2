@@ -178,12 +178,14 @@ class Juego : AppCompatActivity() {
 
     private fun nextQuestion() {
         questionIndex = (questionIndex + 1) % numberOfQuestions
+        progress.questionIndex = questionIndex
         updateQuestion()
         //updateNavigationBar()
     }
 
     private fun previousQuestion() {
         questionIndex = (questionIndex - 1 + questions.size) % numberOfQuestions
+        progress.questionIndex = questionIndex
         updateQuestion()
         //updateNavigationBar()
     }

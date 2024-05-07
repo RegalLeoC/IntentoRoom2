@@ -13,7 +13,9 @@ import com.example.intento2.R
 import com.example.intento2.database.MyAppDatabase
 import com.example.intento2.dataclass.GameSettings
 import com.example.intento2.dataclass.User
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : AppCompatActivity() {
@@ -107,6 +109,20 @@ class MainActivity : AppCompatActivity() {
                 // Update UI components with user info
                 textViewUserName.text = userName  // Update the user name TextView
                 textViewUserScore.text = "Highest Score: $userScore"
+            }
+        }
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == USER_SELECTION_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Reload users from the database and update the UI
+            lifecycleScope.launch {
+                val users = withContext(Dispatchers.IO) {
+                    db.userDao().getAllUsers()
+                }
+                updateUI(users)
             }
         }
     }
