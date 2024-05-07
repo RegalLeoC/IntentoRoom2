@@ -123,7 +123,8 @@ class Juego : AppCompatActivity() {
                 gameSettings.topic2,
                 gameSettings.topic3,
                 gameSettings.topic4,
-                gameSettings.topic5
+                gameSettings.topic5,
+                gameSettings.topic6
             ).toTypedArray()
 
 

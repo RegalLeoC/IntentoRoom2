@@ -53,6 +53,15 @@ enum class Topics(val questions: List<Questions>, val imageResourceId: Int) {
             Questions("¿Cuál es el torneo de tenis más prestigioso en el mundo?", "Wimbledon", listOf("Abierto Francia", "Abierto Australia", "Abierto USA")),
             Questions("¿Cuál es el deporte nacional de Canadá?", "Hockey", listOf("Beisbol", "Futbol", "Baloncesto"))
         ), R.drawable.deporte
+    ),
+    SCIENCE(
+        listOf(
+            Questions("What is the chemical symbol for water?", "H2O", listOf("CO2", "O2", "NaCl")),
+            Questions("What is the largest organ in the human body?", "Skin", listOf("Liver", "Heart", "Lung")),
+            Questions("What is the closest planet to the Sun?", "Mercury", listOf("Venus", "Earth", "Mars")),
+            Questions("What is the process by which plants make their own food called?", "Photosynthesis", listOf("Respiration", "Transpiration", "Fermentation")),
+            Questions("What is the force that opposes motion?", "Friction", listOf("Gravity", "Acceleration", "Inertia"))
+        ), R.drawable.science_image
     );
 
 
