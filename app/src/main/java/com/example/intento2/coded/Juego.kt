@@ -172,7 +172,103 @@ class Juego : AppCompatActivity() {
         //Use hint
         if(gameSettings.clues){
             hintButton.setOnClickListener {
-                //useHint()
+                useHint()
+            }
+        }
+    }
+
+    private fun useHint() {
+
+        //check if we have hints remaining
+        if(hintsAvailable > 0) {
+
+            //Update variables
+            hintsAvailable--
+            hintStreak = 0
+            hintsUsed++
+
+            //Update in progress
+            progress.hintsAvailable = hintsAvailable
+            progress.hintsUsed = hintsUsed
+            progress.hintStreak = hintStreak
+
+            // Update text
+            hintTextView.text = hintsAvailable.toString()
+
+            //Se inicilizan las variables para apuntar a la prgunta actual y sus opciones incorrectas
+            val currentQuestion = questions[questionIndex]
+            val enabledOptions = enabledWrongOptions[questionIndex]
+
+            // Se selecciona al azar una opcion para deshabilitar con la pista
+            if((enabledOptions?.size ?:0) > 1){
+                val randomIndex = (0 until enabledOptions!!.size).random()
+                val optionToDisable = enabledOptions[randomIndex]
+
+                // Remove from enabled options and add it to disabled options
+                enabledWrongOptions[questionIndex]?.remove(optionToDisable)
+                disabledWrongOptions[questionIndex] = (disabledWrongOptions[questionIndex]?: emptyList()) + optionToDisable
+
+
+                progress.enabledWrongOptions = enabledWrongOptions
+                progress.disabledWrongOptions = disabledWrongOptions
+
+
+                disableOption(optionToDisable)
+
+            } else {
+                // Si solo queda una opcion mala la pregunta se contesta sola
+                val correctAnswer = currentQuestion.correctAnswer
+                for(i in 0 until buttonContainer.childCount){
+                    val child = buttonContainer.getChildAt(i)
+                    if (child is Button) {
+                        val option = child.text.toString()
+                        if (option != correctAnswer && enabledOptions!!.contains(option)) {
+                            disabledWrongOptions[questionIndex] = (disabledWrongOptions[questionIndex]?: emptyList()) + option
+                            progress.disabledWrongOptions = disabledWrongOptions
+
+                            disableOption(option)
+                        } else if (option == correctAnswer) {
+                            correctAnswers++
+                            progress.correctAnswers = progress.correctAnswers?.plus(1)
+                            // Necesito contar estos mas el userSelection para terminarlo
+                            hintSelection[questionIndex] = option
+                            progress.hintSelection[questionIndex] = option
+
+                            answeredQuestionsHint[questionIndex] = true
+                            progress.answeredQuestionsHint[questionIndex] = true
+
+                            child.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+                            //Igual deshabilita el hint button????
+                            disableButtons()
+
+
+
+                            //Checar si ya hay que terminar el juego
+                            endGame()
+                        }
+
+                    }
+
+                }
+
+
+            }
+
+
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            db.progressDao().updateProgress(progress)
+        }
+
+    }
+
+    private fun disableOption(option: String) {
+        for (i in 0 until buttonContainer.childCount) {
+            val child = buttonContainer.getChildAt(i)
+            if (child is Button && child.text.toString() == option) {
+                child.setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
+                child.isEnabled = false
             }
         }
     }
@@ -362,8 +458,11 @@ class Juego : AppCompatActivity() {
                             hintsAvailable++
                             hintTextView.text = hintsAvailable.toString()
                             hintStreak = 0
+                            progress.hintsAvailable = hintsAvailable
+                            progress.hintStreak = hintStreak
                         } else {
                             hintStreak++
+                            progress.hintStreak = hintStreak
                         }
 
 
@@ -381,6 +480,7 @@ class Juego : AppCompatActivity() {
                     } else {
                         button.setBackgroundColor(resources.getColor(android.R.color.holo_red_light))
                         hintStreak = 0
+                        progress.hintStreak = hintStreak
 
                         // Use a coroutine to update the question state to "Incorrect"
                         /*lifecycleScope.launch(Dispatchers.IO) {
@@ -428,11 +528,20 @@ class Juego : AppCompatActivity() {
                     userSelection[questionIndex] = option
                     progress.userSelection[questionIndex] = option
 
+
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        db.progressDao().updateProgress(progress)
+                    }
+
                     disableButtons() // Disable buttons after answering
 
                     // Check if we need to end the game
                     endGame()
                 }
+            }
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                db.progressDao().updateProgress(progress)
             }
 
             buttonContainer.addView(button)

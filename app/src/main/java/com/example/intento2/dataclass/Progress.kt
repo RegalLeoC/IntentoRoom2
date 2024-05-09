@@ -24,5 +24,7 @@ data class Progress(
     var userSelection: MutableMap<Int, String?> = mutableMapOf(),
     var hintSelection: MutableMap<Int, String?> = mutableMapOf(),
     var questionIndex: Int? = 0,
+    var hintsAvailable: Int? = 3,
+    var hintStreak: Int? = 0,
 
 )
