@@ -32,6 +32,7 @@
             android:exported="false" />
         <activity
             android:name=".coded.Juego"
+            android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
             android:name=".coded.MainActivity"

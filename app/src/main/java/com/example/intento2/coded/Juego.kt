@@ -1,17 +1,14 @@
 package com.example.intento2.coded
 
-import android.content.DialogInterface
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.example.intento2.R
@@ -807,6 +804,23 @@ class Juego : AppCompatActivity() {
             db.progressDao().updateProgress(progress)
         }
     }
+
+
+    /*
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (newConfig.orientation === Configuration.ORIENTATION_LANDSCAPE) {
+            // Start JuegoReanudado activity for landscape orientation
+            val intent = Intent(this, JuegoReanudado::class.java)
+            startActivity(intent)
+            finish() // Finish current activity
+        } else if (newConfig.orientation === Configuration.ORIENTATION_PORTRAIT) {
+            // Start JuegoReanudado activity for portrait orientation
+            val intent = Intent(this, JuegoReanudado::class.java)
+            startActivity(intent)
+            finish() // Finish current activity
+        }
+    } */
 
 
 
